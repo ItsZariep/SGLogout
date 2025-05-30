@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=SGLogout Settings
 Comment=Configure SGLogout
-Exec=sglogout-cfg
+Exec=sglogout --cfg
 Icon=system-shutdown-symbolic
 Terminal=false
 Type=Application

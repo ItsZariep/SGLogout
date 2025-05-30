@@ -1,0 +1,42 @@
+#!/bin/sh
+
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+
+session_type=$(echo "${XDG_SESSION_TYPE}" | tr '[:upper:]' '[:lower:]')
+args_to_pass=()
+
+while [ "$#" -gt 0 ]; do
+	case "$1" in
+		--x11)
+			session_type=x11
+			shift
+			;;
+		--wayland)
+			session_type=wayland
+			shift
+			;;
+		--*)
+			args_to_pass+=("$1")
+			shift
+			;;
+		*)
+			args_to_pass+=("$1")
+			shift
+			;;
+	esac
+done
+
+case "$session_type" in
+	x11)
+		echo "Running SGLogout - x11"
+		exec "$SCRIPT_DIR/sglogout-x11" "${args_to_pass[@]}"
+		;;
+	wayland)
+		echo "Running SGLogout - Wayland"
+		exec "$SCRIPT_DIR/sglogout-wayland" "${args_to_pass[@]}"
+		;;
+	*)
+		echo "Unsupported or unknown session type: '$session_type', assuming Wayland" >&2
+		exec "$SCRIPT_DIR/sglogout-wayland" "${args_to_pass[@]}"
+		;;
+esac

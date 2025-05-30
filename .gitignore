@@ -1,0 +1,3 @@
+*.o
+sglogout-x11
+sglogout-wayland

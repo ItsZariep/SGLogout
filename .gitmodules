@@ -1,0 +1,3 @@
+[submodule "sgxpos"]
+	path = sgxpos
+	url = https://github.com/ItzSelenux/SGXPos.git
