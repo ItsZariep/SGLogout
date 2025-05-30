@@ -1,11 +1,13 @@
 #include "settings.h"
 
-guint layout = 0;
-guint position = 0;
-guint iconsize = 0;
-guint showicons = 0;
-guint showtext = 0;
-guint postxt = 0;
+guint layout = 1;
+guint gridlayout_cols = 1;
+guint position = 4;
+guint iconsize = 32;
+guint showicons = 1;
+guint showtext = 1;
+guint postxt = 1;
+guint customcss = 0;
 
 gchar *shutdowncmd = NULL;
 gchar *rebootcmd = NULL;
@@ -29,19 +31,23 @@ void readconf(void)
 
 	if (!g_key_file_load_from_file(key_file, config_file_path, G_KEY_FILE_NONE, &error))
 	{
+		g_warning("Failed to load config file: %s", config_file_path);
 
-		if (!g_key_file_save_to_file(key_file, config_file_path, &error))
-		{
-			g_printerr("Error creating config file: %s\n", error->message);
-			g_error_free(error);
-			g_free(config_file_path);
-			g_key_file_free(key_file);
-		}
+		hibernatecmd = g_strdup("(command -v systemctl >/dev/null && systemctl hibernate) || (command -v loginctl >/dev/null && loginctl hibernate)");
+		suspendcmd   = g_strdup("(command -v systemctl >/dev/null && systemctl suspend) || (command -v loginctl >/dev/null && loginctl suspend)");
+		shutdowncmd  = g_strdup("(command -v systemctl >/dev/null && systemctl poweroff) || (command -v loginctl >/dev/null && loginctl poweroff)");
+		rebootcmd    = g_strdup("(command -v systemctl >/dev/null && systemctl reboot) || (command -v loginctl >/dev/null && loginctl reboot)");
+		lockcmd      = g_strdup("xdg-screensaver lock");
+		logoutcmd    = g_strdup("pkill -KILL -u $USER");
+		closeallcmd  = g_strdup("xdotool getactivewindow windowkill");
+		return;
 	}
-	g_custom_message("Settings [READ]", "Reading file: %s", config_file_path);
 
+	g_custom_message("Settings [READ]", "Reading file: %s", config_file_path);
 	layout = g_key_file_get_integer(key_file, "Settings", "layout", NULL);
 		g_custom_message("Settings [LOAD]", "layout: %d", layout);
+	gridlayout_cols = g_key_file_get_integer(key_file, "Settings", "gridlayout_cols", NULL);
+		g_custom_message("Settings [LOAD]", "gridlayout_cols: %d", gridlayout_cols);
 	position = g_key_file_get_integer(key_file, "Settings", "position", NULL);
 		g_custom_message("Settings [LOAD]", "position: %d", position);
 	iconsize = g_key_file_get_integer(key_file, "Settings", "iconsize", NULL);
@@ -52,6 +58,8 @@ void readconf(void)
 		g_custom_message("Settings [LOAD]", "showtext: %d", showtext);
 	postxt = g_key_file_get_integer(key_file, "Settings", "postxt", NULL);
 		g_custom_message("Settings [LOAD]", "postxt: %d", postxt);
+	customcss = g_key_file_get_integer(key_file, "Settings", "customcss", NULL);
+		g_custom_message("Settings [LOAD]", "customcss: %d", customcss);
 
 	shutdowncmd = g_key_file_get_string(key_file, "Settings", "shutdowncmd", NULL);
 		g_custom_message("Settings [LOAD]", "shutdowncmd: %s", shutdowncmd);
@@ -67,6 +75,7 @@ void readconf(void)
 		g_custom_message("Settings [LOAD]", "lockcmd: %s", lockcmd);
 	logoutcmd = g_key_file_get_string(key_file, "Settings", "logoutcmd", NULL);
 		g_custom_message("Settings [LOAD]", "logoutcmd: %s", logoutcmd);
+
 
 	g_key_file_free(key_file);
 	g_free(config_file_path);
@@ -86,6 +95,8 @@ void saveconf(void)
 
 	// Set integer values
 	g_key_file_set_integer(key_file, "Settings", "layout", layout);
+		g_custom_message("Settings [SAVE]", "gridlayout_cols: %d", gridlayout_cols);
+	g_key_file_set_integer(key_file, "Settings", "gridlayout_cols", gridlayout_cols);
 		g_custom_message("Settings [SAVE]", "layout: %d", layout);
 	g_key_file_set_integer(key_file, "Settings", "position", position);
 		g_custom_message("Settings [SAVE]", "position: %d", position);
@@ -95,8 +106,10 @@ void saveconf(void)
 		g_custom_message("Settings [SAVE]", "showicons: %d", showicons);
 	g_key_file_set_integer(key_file, "Settings", "showtext", showtext);
 		g_custom_message("Settings [SAVE]", "showtext: %d", showtext);
-	g_key_file_set_integer(key_file, "Settings", "textpos", postxt);
+	g_key_file_set_integer(key_file, "Settings", "postxt", postxt);
 		g_custom_message("Settings [SAVE]", "postxt: %d", postxt);
+	g_key_file_set_integer(key_file, "Settings", "customcss", customcss);
+		g_custom_message("Settings [SAVE]", "customcss: %d", customcss);
 
 	// Set string values
 	if (shutdowncmd) g_key_file_set_string(key_file, "Settings", "shutdowncmd", shutdowncmd);

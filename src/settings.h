@@ -5,11 +5,13 @@
 #include "events.h"
 
 extern guint layout;
+extern guint gridlayout_cols;
 extern guint position;
 extern guint iconsize;
 extern guint showicons;
 extern guint showtext;
 extern guint postxt;
+extern guint customcss;
 
 extern gchar *shutdowncmd;
 extern gchar *rebootcmd;

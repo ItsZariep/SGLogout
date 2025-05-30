@@ -14,18 +14,56 @@ GtkWidget *giconsize;
 GtkWidget *gpostxt;
 GtkWidget *gshowtxt;
 GtkWidget *gshowico;
+GtkWidget *gcustomcss;
+GtkWidget *ggridlayout_cols_label;
+GtkWidget *ggridlayout_cols;
 
 #define XA 0.0f
 #define XM 4
 
+void togglewidget(GtkWidget *input, gpointer data)
+{
+	GtkWidget *target= GTK_WIDGET(data);
+	if (gtk_widget_get_visible(target)) 
+	{
+		gtk_widget_hide(target);
+	}
+	else
+	{
+		gtk_widget_show(target);
+	}
+}
+
+static void on_glayout_changed(GtkComboBox *combo, gpointer user_data)
+{
+
+	if (gtk_combo_box_get_active(combo) == 2)
+	{
+		gtk_widget_show(ggridlayout_cols_label);
+		gtk_widget_show(ggridlayout_cols);
+	}
+	else
+	{
+		gtk_widget_hide(ggridlayout_cols_label);
+		gtk_widget_hide(ggridlayout_cols);
+	}
+}
+
 void on_save_button_clicked(GtkWidget *dummy, gpointer data)
 {
 	layout = gtk_combo_box_get_active(GTK_COMBO_BOX(glayout));
+
+	const gchar *entry_text = gtk_entry_get_text(GTK_ENTRY(ggridlayout_cols));
+		gchar *endptr;
+		guint64 result = g_ascii_strtoull(entry_text, &endptr, 10);
+		gridlayout_cols = (guint) result;
+
 	position = gtk_combo_box_get_active(GTK_COMBO_BOX(gposition));
 	iconsize = gtk_spin_button_get_value(GTK_SPIN_BUTTON(giconsize));
 	showicons = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gshowico));
 	showtext = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gshowtxt));
 	postxt = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gpostxt));
+	customcss = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gcustomcss));
 
 	closeallcmd = g_strdup(gtk_entry_get_text(GTK_ENTRY(gcloseallcmd))); 
 	hibernatecmd = g_strdup(gtk_entry_get_text(GTK_ENTRY(ghibernatecmd))); 
@@ -56,13 +94,19 @@ void showcfg(void)
 	GtkWidget *settings_tab = gtk_grid_new();
 		gtk_grid_set_column_homogeneous(GTK_GRID(settings_tab), TRUE);
 
-		GtkWidget *glayout_label = gtk_label_new("Item Order:");
+		GtkWidget *glayout_label = gtk_label_new("Item layout:");
 			gtk_label_set_xalign(GTK_LABEL(glayout_label), XA);
 			gtk_widget_set_margin_start(glayout_label, XM);
 		glayout = gtk_combo_box_text_new();
 			gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(glayout), "Vertical");
 			gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(glayout), "Horizontal");
 			gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(glayout), "Grid");
+
+		ggridlayout_cols_label = gtk_label_new("Grid columns:");
+			gtk_label_set_xalign(GTK_LABEL(ggridlayout_cols_label), XA);
+			gtk_widget_set_margin_start(ggridlayout_cols_label, XM);
+		GtkAdjustment *cols_adjustment = gtk_adjustment_new(1, 1, 7, 1, 1, 0);
+			ggridlayout_cols = gtk_spin_button_new(cols_adjustment, 1, 0);
 
 		GtkWidget *gposition_label = gtk_label_new("Window Position:");
 			gtk_label_set_xalign(GTK_LABEL(gposition_label), XA);
@@ -101,6 +145,12 @@ void showcfg(void)
 			gtk_widget_set_margin_start(gpostxt_label, XM);
 		gpostxt  = gtk_check_button_new();
 			gtk_widget_set_direction(gpostxt, GTK_TEXT_DIR_RTL);
+
+		GtkWidget *gcustomcss_label = gtk_label_new("Use custom CSS");
+			gtk_label_set_xalign(GTK_LABEL(gcustomcss_label), XA);
+			gtk_widget_set_margin_start(gcustomcss_label, XM);
+		gcustomcss  = gtk_check_button_new();
+			gtk_widget_set_direction(gcustomcss, GTK_TEXT_DIR_RTL);
 
 
 	GtkWidget *command_tab = gtk_grid_new();
@@ -144,16 +194,19 @@ void showcfg(void)
 	GtkWidget *button_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
 		gtk_box_set_homogeneous(GTK_BOX(button_box), FALSE);
 		GtkWidget *about_page = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
+		GtkWidget *image = gtk_image_new_from_icon_name("system-shutdown", GTK_ICON_SIZE_DIALOG);
+			gtk_box_pack_start(GTK_BOX(about_page), image, FALSE, FALSE, 0);
 		GtkWidget *label_program_name = gtk_label_new("SGLogout");
 			gtk_box_pack_start(GTK_BOX(about_page), label_program_name, FALSE, FALSE, 0);
+		GtkWidget *label_program_version = gtk_label_new(pver);
+			gtk_box_pack_start(GTK_BOX(about_page), label_program_version, FALSE, FALSE, 0);
 		GtkWidget *label_copyright = gtk_label_new("Copyright © 2025 ItsZariep");
 			gtk_box_pack_start(GTK_BOX(about_page), label_copyright, FALSE, FALSE, 0);
 		GtkWidget *label_comments = gtk_label_new("Simple GTK Session Manager");
 			gtk_box_pack_start(GTK_BOX(about_page), label_comments, FALSE, FALSE, 0);
 		GtkWidget *link = gtk_link_button_new_with_label("https://codeberg.org/itszariep/sglogout", "Project WebSite");
 			gtk_box_pack_start(GTK_BOX(about_page), link, FALSE, FALSE, 0);
-		GtkWidget *image = gtk_image_new_from_icon_name("system-shutdown", GTK_ICON_SIZE_DIALOG);
-			gtk_box_pack_start(GTK_BOX(about_page), image, FALSE, FALSE, 0);
+
 
 		GtkWidget *ok_button = gtk_button_new_with_label("OK");
 		GtkWidget *apply_button = gtk_button_new_with_label("Apply");
@@ -163,14 +216,18 @@ void showcfg(void)
 		gtk_grid_attach(GTK_GRID(settings_tab), gposition, 1, 1, 1, 1);
 	gtk_grid_attach(GTK_GRID(settings_tab), glayout_label, 0, 2, 1, 1);
 		gtk_grid_attach(GTK_GRID(settings_tab), glayout, 1, 2, 1, 1);
-	gtk_grid_attach(GTK_GRID(settings_tab), giconsize_label, 0, 3, 1, 1);
-		gtk_grid_attach(GTK_GRID(settings_tab), giconsize, 1, 3, 1, 1);
-	gtk_grid_attach(GTK_GRID(settings_tab), gshowico_label, 0, 4, 1, 1);
-		gtk_grid_attach(GTK_GRID(settings_tab), gshowico, 1, 4, 1, 1);
-	gtk_grid_attach(GTK_GRID(settings_tab), gshowtxt_label, 0, 5, 1, 1);
-		gtk_grid_attach(GTK_GRID(settings_tab), gshowtxt, 1, 5, 1, 1);
-	gtk_grid_attach(GTK_GRID(settings_tab), gpostxt_label, 0, 6, 1, 1);
-		gtk_grid_attach(GTK_GRID(settings_tab), gpostxt, 1, 6, 1, 1);
+	gtk_grid_attach(GTK_GRID(settings_tab), ggridlayout_cols_label, 0, 3, 1, 1);
+		gtk_grid_attach(GTK_GRID(settings_tab), ggridlayout_cols, 1, 3, 1, 1);
+	gtk_grid_attach(GTK_GRID(settings_tab), giconsize_label, 0, 4, 1, 1);
+		gtk_grid_attach(GTK_GRID(settings_tab), giconsize, 1, 4, 1, 1);
+	gtk_grid_attach(GTK_GRID(settings_tab), gshowico_label, 0, 5, 1, 1);
+		gtk_grid_attach(GTK_GRID(settings_tab), gshowico, 1, 5, 1, 1);
+	gtk_grid_attach(GTK_GRID(settings_tab), gshowtxt_label, 0, 6, 1, 1);
+		gtk_grid_attach(GTK_GRID(settings_tab), gshowtxt, 1, 6, 1, 1);
+	gtk_grid_attach(GTK_GRID(settings_tab), gpostxt_label, 0, 7, 1, 1);
+		gtk_grid_attach(GTK_GRID(settings_tab), gpostxt, 1, 7, 1, 1);
+	gtk_grid_attach(GTK_GRID(settings_tab), gcustomcss_label, 0, 8, 1, 1);
+		gtk_grid_attach(GTK_GRID(settings_tab), gcustomcss, 1, 8, 1, 1);
 
 	gtk_grid_attach(GTK_GRID(command_tab), gcloseall_label, 0, 0, 1, 1);
 		gtk_grid_attach(GTK_GRID(command_tab), gcloseallcmd, 1, 0, 1, 1);
@@ -199,17 +256,20 @@ void showcfg(void)
 	gtk_box_pack_start(GTK_BOX(vbox), button_box, FALSE, FALSE, 0);
 
 
+	g_signal_connect(glayout, "changed", G_CALLBACK(on_glayout_changed),NULL);
+
 	g_signal_connect(ok_button, "clicked", G_CALLBACK(on_save_button_clicked), GINT_TO_POINTER(1));
 	g_signal_connect(cancel_button, "clicked", G_CALLBACK(gtk_widget_destroy), cfgdialog);
 	g_signal_connect(apply_button, "clicked", G_CALLBACK(on_save_button_clicked), GINT_TO_POINTER(0));
 
-
 	gtk_combo_box_set_active(GTK_COMBO_BOX(gposition), position);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(glayout), layout);
+	gtk_spin_button_set_value(GTK_SPIN_BUTTON(ggridlayout_cols), gridlayout_cols);
 	gtk_spin_button_set_value(GTK_SPIN_BUTTON(giconsize), iconsize);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gshowico), showicons);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gshowtxt), showtext);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gpostxt), postxt);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gcustomcss), customcss);
 
 	gtk_entry_set_text(GTK_ENTRY(gcloseallcmd), closeallcmd); 
 	gtk_entry_set_text(GTK_ENTRY(ghibernatecmd), hibernatecmd); 
@@ -221,5 +281,6 @@ void showcfg(void)
 
 	gtk_window_set_position(GTK_WINDOW(cfgdialog), GTK_WIN_POS_CENTER);
 	gtk_widget_show_all(cfgdialog);
+	on_glayout_changed(GTK_COMBO_BOX(glayout), NULL);	
 	gtk_main();
 }

@@ -115,6 +115,63 @@ void on_submenu_item3_selected(GtkMenuItem *menuitem, gpointer userdata)
 	gtk_widget_destroy(dialog);
 }
 
+GtkCssProvider *global_provider = NULL;
+void loadcss(int load)
+{
+	if (load == 1)
+	{
+		if (global_provider != NULL)
+		{
+			g_warning("CSS is already loaded.");
+			return;
+		}
+
+		gchar *data_dir = g_build_filename(g_get_user_data_dir(), "sglogout", NULL);
+		gchar *css_path = g_build_filename(data_dir, "style.css", NULL);
+
+		global_provider = gtk_css_provider_new();
+		GdkDisplay *display = gdk_display_get_default();
+		GdkScreen *screen = gdk_display_get_default_screen(display);
+
+		gtk_style_context_add_provider_for_screen(
+			screen,
+			GTK_STYLE_PROVIDER(global_provider),
+			GTK_STYLE_PROVIDER_PRIORITY_USER
+		);
+
+		GError *error = NULL;
+
+		gtk_css_provider_load_from_path(global_provider, css_path, &error);
+
+		if (error != NULL)
+		{
+			g_warning("Could not load CSS from %s: %s", css_path, error->message);
+			g_error_free(error);
+		}
+
+		g_free(data_dir);
+		g_free(css_path);
+	}
+	else if (load == 0)
+	{
+		if (global_provider == NULL)
+		{
+			return;
+		}
+
+		GdkDisplay *display = gdk_display_get_default();
+		GdkScreen *screen = gdk_display_get_default_screen(display);
+
+		gtk_style_context_remove_provider_for_screen(screen,GTK_STYLE_PROVIDER(global_provider));
+
+		g_object_unref(global_provider);
+		global_provider = NULL;
+	}
+	else
+	{
+		return;
+	}
+}
 
 void create_window(void)
 {
@@ -142,7 +199,7 @@ void create_window(void)
 	grid = gtk_grid_new();
 	gtk_container_add(GTK_CONTAINER(window), grid);
 
-	gint omode;
+	gint omode = 0;
 
 	if (postxt == 0)
 	{
@@ -243,7 +300,7 @@ void create_window(void)
 			gtk_container_add(GTK_CONTAINER(lock_btn), lock_box);
 			gtk_container_add(GTK_CONTAINER(logout_btn), logout_box);
 		
-	int ea;
+	int ea = 0;
 		if (showicons == 0 && showtext == 0)
 		{
 			ea = 1;
@@ -255,38 +312,37 @@ void create_window(void)
 	}
 	else
 	{
+		GtkWidget *buttons[] = {
+			shutdown_btn,
+			reboot_btn,
+			sleep_btn,
+			hibernate_btn,
+			killall_btn,
+			lock_btn,
+			logout_btn
+		};
+
+		int columns = 1;
 		if (layout == 0)
 		{
-			gtk_grid_set_column_homogeneous(GTK_GRID(grid), TRUE);
-			gtk_grid_attach(GTK_GRID(grid), shutdown_btn,  0, 0, 1, 1);
-			gtk_grid_attach(GTK_GRID(grid), reboot_btn,    0, 1, 1, 1);
-			gtk_grid_attach(GTK_GRID(grid), sleep_btn,     0, 2, 1, 1);
-			gtk_grid_attach(GTK_GRID(grid), hibernate_btn, 0, 3, 1, 1);
-			gtk_grid_attach(GTK_GRID(grid), killall_btn,   0, 4, 1, 1);
-			gtk_grid_attach(GTK_GRID(grid), lock_btn,      0, 5, 1, 1);
-			gtk_grid_attach(GTK_GRID(grid), logout_btn,    0, 6, 1, 1);
+			columns = 1;
 		}
 		else if (layout == 1)
 		{
-			gtk_grid_set_column_homogeneous(GTK_GRID(grid), TRUE);
-			gtk_grid_attach(GTK_GRID(grid), shutdown_btn,  0, 0, 1, 1);
-			gtk_grid_attach(GTK_GRID(grid), reboot_btn,    1, 0, 1, 1);
-			gtk_grid_attach(GTK_GRID(grid), sleep_btn,     2, 0, 1, 1);
-			gtk_grid_attach(GTK_GRID(grid), hibernate_btn, 3, 0, 1, 1);
-			gtk_grid_attach(GTK_GRID(grid), killall_btn,   4, 0, 1, 1);
-			gtk_grid_attach(GTK_GRID(grid), lock_btn,      5, 0, 1, 1);
-			gtk_grid_attach(GTK_GRID(grid), logout_btn,    6, 0, 1, 1);
+			columns = 9;
 		}
 		else if (layout == 2)
 		{
-			gtk_grid_set_column_homogeneous(GTK_GRID(grid), TRUE);
-			gtk_grid_attach(GTK_GRID(grid), shutdown_btn,  0, 0, 1, 1);
-			gtk_grid_attach(GTK_GRID(grid), reboot_btn,    1, 0, 1, 1);
-			gtk_grid_attach(GTK_GRID(grid), sleep_btn,     2, 0, 1, 1);
-			gtk_grid_attach(GTK_GRID(grid), hibernate_btn, 0, 1, 1, 1);
-			gtk_grid_attach(GTK_GRID(grid), killall_btn,   1, 1, 1, 1);
-			gtk_grid_attach(GTK_GRID(grid), lock_btn,      2, 1, 1, 1);
-			gtk_grid_attach(GTK_GRID(grid), logout_btn,    1, 2, 1, 1);
+			columns = (gridlayout_cols > 0) ? gridlayout_cols : 1;
+		}
+
+		int num_buttons = sizeof(buttons) / sizeof(buttons[0]);
+		gtk_grid_set_column_homogeneous(GTK_GRID(grid), TRUE);
+		for (int i = 0; i < num_buttons; i++)
+		{
+			int col = i % columns;
+			int row = i / columns;
+			gtk_grid_attach(GTK_GRID(grid), buttons[i], col, row, 1, 1);
 		}
 	}
 
@@ -299,67 +355,68 @@ void create_window(void)
 	switch (position)
 	{
 		case 0: // Top - Left
-			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_TOP, true);
-			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_LEFT, true);
-			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_RIGHT, false);
-			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_BOTTOM, false);
+			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_TOP, 1);
+			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_LEFT, 1);
+			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_RIGHT, 0);
+			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_BOTTOM, 0);
 			break;
 		case 1: // Top - Center
-			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_TOP, true);
-			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_LEFT, false);
-			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_RIGHT, false);
-			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_BOTTOM, false);
+			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_TOP, 1);
+			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_LEFT, 0);
+			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_RIGHT, 0);
+			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_BOTTOM, 0);
 			// You may want to center horizontally by setting margins or alignment
 			break;
 		case 2: // Top - Right
-			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_TOP, true);
-			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_RIGHT, true);
-			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_LEFT, false);
-			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_BOTTOM, false);
+			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_TOP, 1);
+			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_RIGHT, 1);
+			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_LEFT, 0);
+			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_BOTTOM, 0);
 			break;
 		case 3: // Middle - Left
-			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_LEFT, true);
-			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_TOP, false);
-			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_BOTTOM, false);
-			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_RIGHT, false);
+			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_LEFT, 1);
+			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_TOP, 0);
+			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_BOTTOM, 0);
+			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_RIGHT, 0);
 			// Center vertically by margins or alignment
 			break;
 		case 4: // Middle - Center
 			// No anchors set to edges; center window both vertically and horizontally
-			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_TOP, false);
-			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_BOTTOM, false);
-			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_LEFT, false);
-			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_RIGHT, false);
+			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_TOP, 0);
+			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_BOTTOM, 0);
+			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_LEFT, 0);
+			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_RIGHT, 0);
 			// Use gtk_layer_set_margin or set window alignment to center it
 			break;
 		case 5: // Middle - Right
-			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_RIGHT, true);
-			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_TOP, false);
-			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_BOTTOM, false);
-			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_LEFT, false);
+			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_RIGHT, 1);
+			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_TOP, 0);
+			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_BOTTOM, 0);
+			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_LEFT, 0);
 			// Center vertically by margins or alignment
 			break;
 		case 6: // Bottom - Left
-			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_BOTTOM, true);
-			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_LEFT, true);
-			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_TOP, false);
-			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_RIGHT, false);
+			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_BOTTOM, 1);
+			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_LEFT, 0);
+			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_TOP, 0);
+			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_RIGHT, 0);
 			break;
 		case 7: // Bottom - Center
-			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_BOTTOM, true);
-			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_LEFT, false);
-			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_RIGHT, false);
-			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_TOP, false);
+			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_BOTTOM, 1);
+			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_LEFT, 0);
+			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_RIGHT, 0);
+			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_TOP, 0);
 			// Center horizontally by margins or alignment
 			break;
 		case 8: // Bottom - Right
-			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_BOTTOM, true);
-			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_RIGHT, true);
-			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_TOP, false);
-			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_LEFT, false);
+			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_BOTTOM, 1);
+			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_RIGHT, 1);
+			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_TOP, 0);
+			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_LEFT, 0);
 			break;
 	}
 
+	loadcss(customcss);
 	g_signal_connect(shutdown_btn, "clicked", G_CALLBACK(run_command), shutdown_btn);
 	g_signal_connect(reboot_btn, "clicked", G_CALLBACK(run_command), reboot_btn);
 	g_signal_connect(sleep_btn, "clicked", G_CALLBACK(run_command), sleep_btn);
