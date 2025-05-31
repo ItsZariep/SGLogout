@@ -465,5 +465,6 @@ void create_window(void)
 	g_signal_connect(lock_btn, "clicked", G_CALLBACK(run_command), window);
 	g_signal_connect(logout_btn, "clicked", G_CALLBACK(run_command), window);
 	g_signal_connect(window, "key-release-event", G_CALLBACK(on_key_press), 0);
-	//g_signal_connect(window, "focus-out-event", G_CALLBACK(on_focus_out), 0);
+	g_signal_connect(window, "focus-out-event", G_CALLBACK(on_focus_out), 0);
+	//g_signal_connect(window, "focus-in-event", G_CALLBACK(on_focus_out), GINT_TO_POINTER(1));
 }
