@@ -11,28 +11,17 @@ GtkWidget *gsuspendcmd;
 GtkWidget *glayout;
 GtkWidget *gposition;
 GtkWidget *giconsize;
+GtkWidget *gshowconfirm;
 GtkWidget *gpostxt;
 GtkWidget *gshowtxt;
 GtkWidget *gshowico;
 GtkWidget *gcustomcss;
 GtkWidget *ggridlayout_cols_label;
 GtkWidget *ggridlayout_cols;
+GtkWidget *gautogridadjustment;
 
 #define XA 0.0f
 #define XM 4
-
-void togglewidget(GtkWidget *input, gpointer data)
-{
-	GtkWidget *target= GTK_WIDGET(data);
-	if (gtk_widget_get_visible(target)) 
-	{
-		gtk_widget_hide(target);
-	}
-	else
-	{
-		gtk_widget_show(target);
-	}
-}
 
 static void on_glayout_changed(GtkComboBox *combo, gpointer user_data)
 {
@@ -41,17 +30,20 @@ static void on_glayout_changed(GtkComboBox *combo, gpointer user_data)
 	{
 		gtk_widget_show(ggridlayout_cols_label);
 		gtk_widget_show(ggridlayout_cols);
+		gtk_widget_show(gautogridadjustment);
 	}
 	else
 	{
 		gtk_widget_hide(ggridlayout_cols_label);
 		gtk_widget_hide(ggridlayout_cols);
+		gtk_widget_hide(gautogridadjustment);
 	}
 }
 
 void on_save_button_clicked(GtkWidget *dummy, gpointer data)
 {
 	layout = gtk_combo_box_get_active(GTK_COMBO_BOX(glayout));
+	autogridadjustment = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gautogridadjustment));
 
 	const gchar *entry_text = gtk_entry_get_text(GTK_ENTRY(ggridlayout_cols));
 		gchar *endptr;
@@ -61,6 +53,7 @@ void on_save_button_clicked(GtkWidget *dummy, gpointer data)
 	position = gtk_combo_box_get_active(GTK_COMBO_BOX(gposition));
 	iconsize = gtk_spin_button_get_value(GTK_SPIN_BUTTON(giconsize));
 	showicons = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gshowico));
+	showconfirm = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gshowconfirm));
 	showtext = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gshowtxt));
 	postxt = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gpostxt));
 	customcss = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gcustomcss));
@@ -78,12 +71,26 @@ void on_save_button_clicked(GtkWidget *dummy, gpointer data)
 	if (input == 1) {gtk_main_quit();}
 }
 
+GtkIconTheme *theme;
+GtkIconInfo *info;
+GdkPixbuf *icon;
+
 void showcfg(void)
 {
 	GtkWidget *cfgdialog = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(cfgdialog), "Settings - SGLogout");
 	gtk_container_set_border_width(GTK_CONTAINER(cfgdialog), 10);
-	gtk_widget_set_size_request(cfgdialog, 500, 400);
+
+	theme = gtk_icon_theme_get_default();
+	info = gtk_icon_theme_lookup_icon(theme, "system-shutdown", 48, 0);
+	if (info != NULL)
+	{
+		GdkPixbuf *icon = gtk_icon_info_load_icon(info, NULL);
+		gtk_window_set_icon(GTK_WINDOW(cfgdialog), icon);
+		g_object_unref(icon);
+		g_object_unref(info);
+	}
+
 	g_signal_connect(cfgdialog, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
 	GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
@@ -107,6 +114,8 @@ void showcfg(void)
 			gtk_widget_set_margin_start(ggridlayout_cols_label, XM);
 		GtkAdjustment *cols_adjustment = gtk_adjustment_new(1, 1, 7, 1, 1, 0);
 			ggridlayout_cols = gtk_spin_button_new(cols_adjustment, 1, 0);
+		gautogridadjustment =  gtk_check_button_new_with_label("Auto-adjust grid items");
+			gtk_widget_set_direction(gautogridadjustment, GTK_TEXT_DIR_RTL);
 
 		GtkWidget *gposition_label = gtk_label_new("Window Position:");
 			gtk_label_set_xalign(GTK_LABEL(gposition_label), XA);
@@ -128,30 +137,16 @@ void showcfg(void)
 		GtkAdjustment *icon_adjustment = gtk_adjustment_new(1, 0, 1024, 1, 1, 0);
 			giconsize = gtk_spin_button_new(icon_adjustment, 1, 0);
 
-		GtkWidget *gshowico_label = gtk_label_new("Show icons");
-			gtk_label_set_xalign(GTK_LABEL(gshowico_label), XA);
-			gtk_widget_set_margin_start(gshowico_label, XM);
-		gshowico = gtk_check_button_new();
+		gshowconfirm = gtk_check_button_new_with_label("Show Confirmation");
+			gtk_widget_set_direction(gshowconfirm, GTK_TEXT_DIR_RTL);
+		gshowico = gtk_check_button_new_with_label("Show icons");
 			gtk_widget_set_direction(gshowico, GTK_TEXT_DIR_RTL);
-
-		GtkWidget *gshowtxt_label = gtk_label_new("Show text");
-			gtk_label_set_xalign(GTK_LABEL(gshowtxt_label), XA);
-			gtk_widget_set_margin_start(gshowtxt_label, XM);
-		gshowtxt = gtk_check_button_new();
+		gshowtxt = gtk_check_button_new_with_label("Show text");
 			gtk_widget_set_direction(gshowtxt, GTK_TEXT_DIR_RTL);
-
-		GtkWidget *gpostxt_label = gtk_label_new("Text under icon");
-			gtk_label_set_xalign(GTK_LABEL(gpostxt_label), XA);
-			gtk_widget_set_margin_start(gpostxt_label, XM);
-		gpostxt  = gtk_check_button_new();
+		gpostxt  = gtk_check_button_new_with_label("Text under icon");
 			gtk_widget_set_direction(gpostxt, GTK_TEXT_DIR_RTL);
-
-		GtkWidget *gcustomcss_label = gtk_label_new("Use custom CSS");
-			gtk_label_set_xalign(GTK_LABEL(gcustomcss_label), XA);
-			gtk_widget_set_margin_start(gcustomcss_label, XM);
-		gcustomcss  = gtk_check_button_new();
+		gcustomcss  = gtk_check_button_new_with_label("Use custom CSS");
 			gtk_widget_set_direction(gcustomcss, GTK_TEXT_DIR_RTL);
-
 
 	GtkWidget *command_tab = gtk_grid_new();
 		gtk_grid_set_column_homogeneous(GTK_GRID(command_tab), TRUE);
@@ -218,16 +213,14 @@ void showcfg(void)
 		gtk_grid_attach(GTK_GRID(settings_tab), glayout, 1, 2, 1, 1);
 	gtk_grid_attach(GTK_GRID(settings_tab), ggridlayout_cols_label, 0, 3, 1, 1);
 		gtk_grid_attach(GTK_GRID(settings_tab), ggridlayout_cols, 1, 3, 1, 1);
-	gtk_grid_attach(GTK_GRID(settings_tab), giconsize_label, 0, 4, 1, 1);
-		gtk_grid_attach(GTK_GRID(settings_tab), giconsize, 1, 4, 1, 1);
-	gtk_grid_attach(GTK_GRID(settings_tab), gshowico_label, 0, 5, 1, 1);
-		gtk_grid_attach(GTK_GRID(settings_tab), gshowico, 1, 5, 1, 1);
-	gtk_grid_attach(GTK_GRID(settings_tab), gshowtxt_label, 0, 6, 1, 1);
-		gtk_grid_attach(GTK_GRID(settings_tab), gshowtxt, 1, 6, 1, 1);
-	gtk_grid_attach(GTK_GRID(settings_tab), gpostxt_label, 0, 7, 1, 1);
-		gtk_grid_attach(GTK_GRID(settings_tab), gpostxt, 1, 7, 1, 1);
-	gtk_grid_attach(GTK_GRID(settings_tab), gcustomcss_label, 0, 8, 1, 1);
-		gtk_grid_attach(GTK_GRID(settings_tab), gcustomcss, 1, 8, 1, 1);
+	gtk_grid_attach(GTK_GRID(settings_tab), gautogridadjustment, 0, 4, 2, 1);
+	gtk_grid_attach(GTK_GRID(settings_tab), giconsize_label, 0, 5, 1, 1);
+		gtk_grid_attach(GTK_GRID(settings_tab), giconsize, 1, 5, 1, 1);
+	gtk_grid_attach(GTK_GRID(settings_tab), gshowconfirm, 0, 6, 2, 1);
+	gtk_grid_attach(GTK_GRID(settings_tab), gshowico, 0, 7, 2, 1);
+	gtk_grid_attach(GTK_GRID(settings_tab), gshowtxt, 0, 8, 2, 1);
+	gtk_grid_attach(GTK_GRID(settings_tab), gpostxt, 0, 9, 2, 1);
+	gtk_grid_attach(GTK_GRID(settings_tab), gcustomcss, 0, 10, 2, 1);
 
 	gtk_grid_attach(GTK_GRID(command_tab), gcloseall_label, 0, 0, 1, 1);
 		gtk_grid_attach(GTK_GRID(command_tab), gcloseallcmd, 1, 0, 1, 1);
@@ -266,6 +259,8 @@ void showcfg(void)
 	gtk_combo_box_set_active(GTK_COMBO_BOX(glayout), layout);
 	gtk_spin_button_set_value(GTK_SPIN_BUTTON(ggridlayout_cols), gridlayout_cols);
 	gtk_spin_button_set_value(GTK_SPIN_BUTTON(giconsize), iconsize);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gautogridadjustment), autogridadjustment);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gshowconfirm), showconfirm);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gshowico), showicons);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gshowtxt), showtext);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gpostxt), postxt);

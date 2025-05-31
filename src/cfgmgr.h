@@ -19,6 +19,11 @@ extern GtkWidget *gpostxt;
 extern GtkWidget *gshowtxt;
 extern GtkWidget *gshowico;
 
+
+extern GtkIconTheme *theme;
+extern GtkIconInfo *info;
+extern GdkPixbuf *icon;
+
 #define XA 0.0f
 #define XM 4
 

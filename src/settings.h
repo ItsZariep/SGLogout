@@ -6,9 +6,11 @@
 
 extern guint layout;
 extern guint gridlayout_cols;
+extern guint autogridadjustment;
 extern guint position;
 extern guint iconsize;
 extern guint showicons;
+extern guint showconfirm;
 extern guint showtext;
 extern guint postxt;
 extern guint customcss;

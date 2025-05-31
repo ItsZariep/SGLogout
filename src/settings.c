@@ -2,8 +2,10 @@
 
 guint layout = 1;
 guint gridlayout_cols = 1;
+guint autogridadjustment = 1;
 guint position = 4;
 guint iconsize = 32;
+guint showconfirm = 1;
 guint showicons = 1;
 guint showtext = 1;
 guint postxt = 1;
@@ -48,12 +50,16 @@ void readconf(void)
 		g_custom_message("Settings [LOAD]", "layout: %d", layout);
 	gridlayout_cols = g_key_file_get_integer(key_file, "Settings", "gridlayout_cols", NULL);
 		g_custom_message("Settings [LOAD]", "gridlayout_cols: %d", gridlayout_cols);
+	autogridadjustment = g_key_file_get_integer(key_file, "Settings", "autogridadjustment", NULL);
+		g_custom_message("Settings [LOAD]", "autogridadjustment: %d", autogridadjustment);
 	position = g_key_file_get_integer(key_file, "Settings", "position", NULL);
 		g_custom_message("Settings [LOAD]", "position: %d", position);
 	iconsize = g_key_file_get_integer(key_file, "Settings", "iconsize", NULL);
 		g_custom_message("Settings [LOAD]", "iconsize: %d", iconsize);
 	showicons = g_key_file_get_integer(key_file, "Settings", "showicons", NULL);
 		g_custom_message("Settings [LOAD]", "showicons: %d", showicons);
+	showconfirm = g_key_file_get_integer(key_file, "Settings", "showconfirm", NULL);
+		g_custom_message("Settings [LOAD]", "showconfirm: %d", showconfirm);
 	showtext = g_key_file_get_integer(key_file, "Settings", "showtext", NULL);
 		g_custom_message("Settings [LOAD]", "showtext: %d", showtext);
 	postxt = g_key_file_get_integer(key_file, "Settings", "postxt", NULL);
@@ -95,15 +101,19 @@ void saveconf(void)
 
 	// Set integer values
 	g_key_file_set_integer(key_file, "Settings", "layout", layout);
-		g_custom_message("Settings [SAVE]", "gridlayout_cols: %d", gridlayout_cols);
-	g_key_file_set_integer(key_file, "Settings", "gridlayout_cols", gridlayout_cols);
 		g_custom_message("Settings [SAVE]", "layout: %d", layout);
+	g_key_file_set_integer(key_file, "Settings", "gridlayout_cols", gridlayout_cols);
+		g_custom_message("Settings [SAVE]", "gridlayout_cols: %d", gridlayout_cols);
+	g_key_file_set_integer(key_file, "Settings", "autogridadjustment", autogridadjustment);
+		g_custom_message("Settings [SAVE]", "autogridadjustment: %d", autogridadjustment);
 	g_key_file_set_integer(key_file, "Settings", "position", position);
 		g_custom_message("Settings [SAVE]", "position: %d", position);
 	g_key_file_set_integer(key_file, "Settings", "iconsize", iconsize);
 		g_custom_message("Settings [SAVE]", "iconsize: %d", iconsize);
 	g_key_file_set_integer(key_file, "Settings", "showicons", showicons);
 		g_custom_message("Settings [SAVE]", "showicons: %d", showicons);
+	g_key_file_set_integer(key_file, "Settings", "showconfirm", showconfirm);
+		g_custom_message("Settings [SAVE]", "showconfirm: %d", showconfirm);
 	g_key_file_set_integer(key_file, "Settings", "showtext", showtext);
 		g_custom_message("Settings [SAVE]", "showtext: %d", showtext);
 	g_key_file_set_integer(key_file, "Settings", "postxt", postxt);
