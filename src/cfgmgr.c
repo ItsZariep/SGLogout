@@ -254,7 +254,7 @@ void showcfg(void)
 	g_signal_connect(glayout, "changed", G_CALLBACK(on_glayout_changed),NULL);
 
 	g_signal_connect(ok_button, "clicked", G_CALLBACK(on_save_button_clicked), GINT_TO_POINTER(1));
-	g_signal_connect(cancel_button, "clicked", G_CALLBACK(gtk_widget_destroy), cfgdialog);
+	g_signal_connect(cancel_button, "clicked", G_CALLBACK(gtk_main_quit), cfgdialog);
 	g_signal_connect(apply_button, "clicked", G_CALLBACK(on_save_button_clicked), GINT_TO_POINTER(0));
 
 	gtk_combo_box_set_active(GTK_COMBO_BOX(gposition), position);

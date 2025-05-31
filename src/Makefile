@@ -26,7 +26,7 @@ all: x11
 else ifeq ($(NOLIBS),1)
 all: nolibs
 else
-all: wayland x11 nolibs
+all: wayland x11
 endif
 
 x11: $(OBJ_X11)
