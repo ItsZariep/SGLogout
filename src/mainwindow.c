@@ -118,10 +118,12 @@ void create_window(void)
 	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(window), "SGLogout");
 	gtk_container_set_border_width(GTK_CONTAINER(window), 10);
+#ifndef nolibs
 	gtk_layer_init_for_window(GTK_WINDOW(window));
 	gtk_layer_set_layer(GTK_WINDOW(window), GTK_LAYER_SHELL_LAYER_OVERLAY);
-	gtk_window_set_accept_focus(GTK_WINDOW(window), TRUE);
 	gtk_layer_set_keyboard_mode(GTK_WINDOW(window), GTK_LAYER_SHELL_KEYBOARD_MODE_ON_DEMAND);
+#endif
+	gtk_window_set_accept_focus(GTK_WINDOW(window), TRUE);
 	gtk_widget_grab_focus(window);
 
 	g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL); //is commented to prevent destroying process when destroying window
@@ -392,6 +394,7 @@ void create_window(void)
 		int windowWidth, windowHeight;
 		gtk_window_get_size(GTK_WINDOW(window), &windowWidth, &windowHeight);
 
+#ifndef nolibs
 	switch (position)
 	{
 		case 0: // Top - Left
@@ -455,6 +458,7 @@ void create_window(void)
 			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_LEFT, 0);
 			break;
 	}
+#endif
 
 	loadcss(customcss);
 	g_signal_connect(shutdown_btn, "clicked", G_CALLBACK(run_command), window);

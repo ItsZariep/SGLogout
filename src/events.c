@@ -72,6 +72,7 @@ gboolean on_focus_out(GtkWidget *widget, GdkEventFocus *event, gpointer user_dat
 			return TRUE;
 		}
 	}
+	return FALSE;
 }
 
 gboolean on_key_press(GtkWidget *widget, GdkEventKey *event, gpointer user_data)
@@ -144,7 +145,9 @@ void run_command(GtkWidget *input, GtkWindow *main_window)
 		return;
 	}
 
+#ifndef nolibs
 	gtk_layer_set_layer(GTK_WINDOW(main_window), GTK_LAYER_SHELL_LAYER_BOTTOM);
+#endif
 
 	if (showconfirm == 1)
 	{
@@ -169,7 +172,9 @@ void run_command(GtkWidget *input, GtkWindow *main_window)
 
 		if (response != GTK_RESPONSE_YES)
 		{
+		#ifndef nolibs
 			gtk_layer_set_layer(GTK_WINDOW(main_window), GTK_LAYER_SHELL_LAYER_OVERLAY);
+		#endif
 			selflock = 0;
 			g_custom_message("Events [Window]", "Exit on focus re-enabled");
 			return;
@@ -190,7 +195,9 @@ void run_command(GtkWidget *input, GtkWindow *main_window)
 		g_idle_add(show_error_dialog, err_data);
 
 		gtk_widget_show(GTK_WIDGET(main_window));
+	#ifndef nolibs
 		gtk_layer_set_layer(GTK_WINDOW(main_window), GTK_LAYER_SHELL_LAYER_OVERLAY);
+	#endif
 		//selflock = 0;
 		g_error_free(error);
 	}

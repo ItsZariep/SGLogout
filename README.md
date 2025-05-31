@@ -34,7 +34,15 @@ You can also build only one backend:
   ```bash
   make WAYLAND=1
   ```
+ 
+* Without libs
 
+  ```bash
+  make LIBS_NOLIBS=1
+  ```
+
+> [!NOTE]  
+> Without libs, window position settings are naturally unavailable.
 ---
 
 ## Installation

@@ -207,8 +207,10 @@ void showcfg(void)
 		GtkWidget *apply_button = gtk_button_new_with_label("Apply");
 		GtkWidget *cancel_button = gtk_button_new_with_label("Cancel");
 
+#ifndef nolibs
 	gtk_grid_attach(GTK_GRID(settings_tab), gposition_label, 0, 1, 1, 1);
 		gtk_grid_attach(GTK_GRID(settings_tab), gposition, 1, 1, 1, 1);
+#endif
 	gtk_grid_attach(GTK_GRID(settings_tab), glayout_label, 0, 2, 1, 1);
 		gtk_grid_attach(GTK_GRID(settings_tab), glayout, 1, 2, 1, 1);
 	gtk_grid_attach(GTK_GRID(settings_tab), ggridlayout_cols_label, 0, 3, 1, 1);

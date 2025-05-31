@@ -1,3 +1,4 @@
-[submodule "sgxpos"]
-	path = src/sgxpos
+[submodule "src/SGXPos"]
+	path = src/SGXPos
 	url = https://codeberg.org/ItsZariep/SGXPos
+
