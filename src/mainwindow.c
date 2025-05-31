@@ -304,7 +304,7 @@ void create_window(void)
 
 			if (autogridadjustment == 1)
 			{
-				if (position == 0 || position == 1 || position == 2)
+				if (position == 1 || position == 2 || position  ==  4 || position  == 5)
 				{
 					// Adjust last row (normal, no inversion)
 					if (row == total_rows - 1)
@@ -437,7 +437,7 @@ void create_window(void)
 			break;
 		case 6: // Bottom - Left
 			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_BOTTOM, 1);
-			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_LEFT, 0);
+			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_LEFT, 1);
 			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_TOP, 0);
 			gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_RIGHT, 0);
 			break;
