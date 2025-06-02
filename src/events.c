@@ -161,7 +161,8 @@ void run_command(GtkWidget *input, GtkWindow *main_window)
 		);
 		g_free(message);
 
-		gtk_window_set_title(GTK_WINDOW(dialog), "Confirm Command");
+		gchar *windowtitle = g_strconcat("Confirm ", label, NULL);
+		gtk_window_set_title(GTK_WINDOW(dialog), windowtitle);
 		gtk_window_set_transient_for(GTK_WINDOW(dialog), main_window);
 		gtk_window_set_modal(GTK_WINDOW(dialog), TRUE);
 		gtk_window_set_keep_above(GTK_WINDOW(dialog), TRUE);

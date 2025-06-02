@@ -35,13 +35,13 @@ void readconf(void)
 	{
 		g_warning("Failed to load config file: %s", config_file_path);
 
-		hibernatecmd = g_strdup("(command -v systemctl >/dev/null && systemctl hibernate) || (command -v loginctl >/dev/null && loginctl hibernate)");
-		suspendcmd   = g_strdup("(command -v systemctl >/dev/null && systemctl suspend) || (command -v loginctl >/dev/null && loginctl suspend)");
-		shutdowncmd  = g_strdup("(command -v systemctl >/dev/null && systemctl poweroff) || (command -v loginctl >/dev/null && loginctl poweroff)");
-		rebootcmd    = g_strdup("(command -v systemctl >/dev/null && systemctl reboot) || (command -v loginctl >/dev/null && loginctl reboot)");
+		hibernatecmd = g_strdup("systemctl hibernate");
+		suspendcmd   = g_strdup("systemctl suspend");
+		shutdowncmd  = g_strdup("systemctl poweroff");
+		rebootcmd    = g_strdup("systemctl reboot");
 		lockcmd      = g_strdup("xdg-screensaver lock");
 		logoutcmd    = g_strdup("pkill -KILL -u $USER");
-		closeallcmd  = g_strdup("xdotool getactivewindow windowkill");
+		closeallcmd  = g_strdup("placeholder, please add your script");
 		return;
 	}
 

@@ -171,7 +171,7 @@ void showcfg(void)
 			gtk_widget_set_margin_start(glogout_label, XM);
 		glogoutcmd = gtk_entry_new();
 
-		GtkWidget *gpwroff_label = gtk_label_new("Power Off Command:");
+		GtkWidget *gpwroff_label = gtk_label_new("Shut down Command:");
 			gtk_label_set_xalign(GTK_LABEL(gpwroff_label), XA);
 			gtk_widget_set_margin_start(gpwroff_label, XM);
 		gpwroffcmd = gtk_entry_new();

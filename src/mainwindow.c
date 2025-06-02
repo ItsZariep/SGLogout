@@ -118,6 +118,7 @@ void create_window(void)
 	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(window), "SGLogout");
 	gtk_container_set_border_width(GTK_CONTAINER(window), 10);
+	gtk_window_set_decorated(GTK_WINDOW(window), FALSE);
 #ifndef nolibs
 	gtk_layer_init_for_window(GTK_WINDOW(window));
 	gtk_layer_set_layer(GTK_WINDOW(window), GTK_LAYER_SHELL_LAYER_OVERLAY);
@@ -162,6 +163,7 @@ void create_window(void)
 
 		// Shut down
 		shutdown_btn = gtk_button_new();
+			gtk_widget_set_tooltip_text(shutdown_btn, "Shut down");
 			shutdown_ico = gtk_image_new_from_icon_name("system-shutdown", GTK_ICON_SIZE_INVALID);
 			gtk_image_set_pixel_size(GTK_IMAGE(shutdown_ico), iconsize);
 			shutdown_txt = gtk_label_new("Shut down");
@@ -170,6 +172,7 @@ void create_window(void)
 
 		// Reboot
 		reboot_btn = gtk_button_new();
+			gtk_widget_set_tooltip_text(reboot_btn, "Reboot");
 			reboot_ico = gtk_image_new_from_icon_name("system-reboot", GTK_ICON_SIZE_INVALID);
 			gtk_image_set_pixel_size(GTK_IMAGE(reboot_ico), iconsize);
 			reboot_txt = gtk_label_new("Reboot");
@@ -178,6 +181,7 @@ void create_window(void)
 
 		// Suspend
 		sleep_btn = gtk_button_new();
+			gtk_widget_set_tooltip_text(sleep_btn, "Suspend");
 			sleep_ico = gtk_image_new_from_icon_name("system-suspend", GTK_ICON_SIZE_INVALID);
 			gtk_image_set_pixel_size(GTK_IMAGE(sleep_ico), iconsize);
 			sleep_txt = gtk_label_new("Suspend");
@@ -186,6 +190,7 @@ void create_window(void)
 
 		// Hibernate
 		hibernate_btn = gtk_button_new();
+			gtk_widget_set_tooltip_text(hibernate_btn, "Hibernate");
 			hibernate_ico = gtk_image_new_from_icon_name("system-hibernate", GTK_ICON_SIZE_INVALID);
 			gtk_image_set_pixel_size(GTK_IMAGE(hibernate_ico), iconsize);
 			hibernate_txt = gtk_label_new("Hibernate");
@@ -194,6 +199,7 @@ void create_window(void)
 
 		// Kill all
 		killall_btn = gtk_button_new();
+			gtk_widget_set_tooltip_text(killall_btn, "Close all windows");
 			killall_ico = gtk_image_new_from_icon_name("window-close", GTK_ICON_SIZE_INVALID);
 			gtk_image_set_pixel_size(GTK_IMAGE(killall_ico), iconsize);
 			killall_txt = gtk_label_new("Close all windows");
@@ -202,6 +208,7 @@ void create_window(void)
 
 		// Lock screen
 		lock_btn = gtk_button_new();
+			gtk_widget_set_tooltip_text(lock_btn, "Lock screen");
 			lock_ico = gtk_image_new_from_icon_name("lock", GTK_ICON_SIZE_INVALID);
 			gtk_image_set_pixel_size(GTK_IMAGE(lock_ico), iconsize);
 			lock_txt = gtk_label_new("Lock screen");
@@ -210,6 +217,7 @@ void create_window(void)
 
 		// Logout
 		logout_btn = gtk_button_new();
+			gtk_widget_set_tooltip_text(logout_btn, "Logout");
 			logout_ico = gtk_image_new_from_icon_name("system-log-out", GTK_ICON_SIZE_INVALID);
 			gtk_image_set_pixel_size(GTK_IMAGE(logout_ico), iconsize);
 			logout_txt = gtk_label_new("Logout");
