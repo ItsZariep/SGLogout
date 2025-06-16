@@ -119,6 +119,9 @@ void create_window(void)
 	gtk_window_set_title(GTK_WINDOW(window), "SGLogout");
 	gtk_container_set_border_width(GTK_CONTAINER(window), 10);
 	gtk_window_set_decorated(GTK_WINDOW(window), FALSE);
+	gtk_window_set_skip_taskbar_hint(GTK_WINDOW(window), FALSE);
+	gtk_window_set_skip_pager_hint(GTK_WINDOW(window), FALSE);
+
 #ifndef nolibs
 	gtk_layer_init_for_window(GTK_WINDOW(window));
 	gtk_layer_set_layer(GTK_WINDOW(window), GTK_LAYER_SHELL_LAYER_OVERLAY);
@@ -169,6 +172,7 @@ void create_window(void)
 			shutdown_txt = gtk_label_new("Shut down");
 			g_object_set_data(G_OBJECT(shutdown_btn), "command", shutdowncmd);
 			g_object_set_data(G_OBJECT(shutdown_btn), "label", "Shut down");
+			g_object_set_data(G_OBJECT(shutdown_btn), "icon", "system-shutdown");
 
 		// Reboot
 		reboot_btn = gtk_button_new();
@@ -178,6 +182,7 @@ void create_window(void)
 			reboot_txt = gtk_label_new("Reboot");
 			g_object_set_data(G_OBJECT(reboot_btn), "command", rebootcmd);
 			g_object_set_data(G_OBJECT(reboot_btn), "label", "Reboot");
+			g_object_set_data(G_OBJECT(reboot_btn), "icon", "system-reboot");
 
 		// Suspend
 		sleep_btn = gtk_button_new();
@@ -187,6 +192,8 @@ void create_window(void)
 			sleep_txt = gtk_label_new("Suspend");
 			g_object_set_data(G_OBJECT(sleep_btn), "command", suspendcmd);
 			g_object_set_data(G_OBJECT(sleep_btn), "label", "Suspend");
+			g_object_set_data(G_OBJECT(sleep_btn), "icon", "system-suspend");
+
 
 		// Hibernate
 		hibernate_btn = gtk_button_new();
@@ -196,6 +203,7 @@ void create_window(void)
 			hibernate_txt = gtk_label_new("Hibernate");
 			g_object_set_data(G_OBJECT(hibernate_btn), "command", hibernatecmd);
 			g_object_set_data(G_OBJECT(hibernate_btn), "label", "Hibernate");
+			g_object_set_data(G_OBJECT(hibernate_btn), "icon", "system-hibernate");
 
 		// Kill all
 		killall_btn = gtk_button_new();
@@ -205,6 +213,7 @@ void create_window(void)
 			killall_txt = gtk_label_new("Close all windows");
 			g_object_set_data(G_OBJECT(killall_btn), "command", closeallcmd);
 			g_object_set_data(G_OBJECT(killall_btn), "label", "Close all windows");
+			g_object_set_data(G_OBJECT(killall_btn), "icon", "window-close");
 
 		// Lock screen
 		lock_btn = gtk_button_new();
@@ -214,6 +223,7 @@ void create_window(void)
 			lock_txt = gtk_label_new("Lock screen");
 			g_object_set_data(G_OBJECT(lock_btn), "command", lockcmd);
 			g_object_set_data(G_OBJECT(lock_btn), "label", "Lock screen");
+			g_object_set_data(G_OBJECT(lock_btn), "icon", "lock");
 
 		// Logout
 		logout_btn = gtk_button_new();
@@ -223,7 +233,7 @@ void create_window(void)
 			logout_txt = gtk_label_new("Logout");
 			g_object_set_data(G_OBJECT(logout_btn), "command", logoutcmd);
 			g_object_set_data(G_OBJECT(logout_btn), "label", "Logout");
-
+			g_object_set_data(G_OBJECT(logout_btn), "icon", "system-log-out");
 
 		//Add icon to box
 		if (showicons == 1)

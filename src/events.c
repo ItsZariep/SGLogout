@@ -138,6 +138,7 @@ void run_command(GtkWidget *input, GtkWindow *main_window)
 
 	const gchar *command = g_object_get_data(G_OBJECT(input), "command");
 	const gchar *label = g_object_get_data(G_OBJECT(input), "label");
+	const gchar *iconname = g_object_get_data(G_OBJECT(input), "icon");
 
 	if (!command || *command == '\0')
 	{
@@ -145,31 +146,71 @@ void run_command(GtkWidget *input, GtkWindow *main_window)
 		return;
 	}
 
-#ifndef nolibs
-	gtk_layer_set_layer(GTK_WINDOW(main_window), GTK_LAYER_SHELL_LAYER_BOTTOM);
-#endif
+	#ifndef nolibs
+		gtk_layer_set_layer(GTK_WINDOW(main_window), GTK_LAYER_SHELL_LAYER_BOTTOM);
+	#endif
 
 	if (showconfirm == 1)
 	{
 		gchar *message = g_strconcat("Are you sure you want to ", label, "?", NULL);
-		GtkWidget *dialog = gtk_message_dialog_new(
-			main_window,
-			GTK_DIALOG_MODAL,
-			GTK_MESSAGE_WARNING,
-			GTK_BUTTONS_YES_NO,
-			"%s", message
-		);
-		g_free(message);
-
 		gchar *windowtitle = g_strconcat("Confirm ", label, NULL);
-		gtk_window_set_title(GTK_WINDOW(dialog), windowtitle);
+
+		GtkWidget *dialog = gtk_dialog_new_with_buttons(
+			windowtitle,
+			main_window,
+			GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+			"_No", GTK_RESPONSE_NO,
+			"_Yes", GTK_RESPONSE_YES,
+			NULL
+		);
+
 		gtk_window_set_transient_for(GTK_WINDOW(dialog), main_window);
 		gtk_window_set_modal(GTK_WINDOW(dialog), TRUE);
 		gtk_window_set_keep_above(GTK_WINDOW(dialog), TRUE);
 		gtk_window_set_position(GTK_WINDOW(dialog), GTK_WIN_POS_CENTER_ON_PARENT);
+		gtk_window_set_resizable(GTK_WINDOW(dialog), FALSE);
+
+		GtkWidget *content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+		gtk_container_set_border_width(GTK_CONTAINER(content_area), 12);
+
+		GtkWidget *hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 12);
+		gtk_container_add(GTK_CONTAINER(content_area), hbox);
+
+		GtkWidget *icon;
+		if (iconname && *iconname != '\0')
+		{
+			GdkPixbuf *icon_pixbuf;
+			GtkIconTheme *theme = gtk_icon_theme_get_default();
+			icon_pixbuf = gtk_icon_theme_load_icon(theme, iconname, 48, 0, NULL);
+			if (icon_pixbuf)
+			{
+				gtk_window_set_icon(GTK_WINDOW(dialog), icon_pixbuf);
+				g_object_unref(icon_pixbuf);
+			}
+			icon = gtk_image_new_from_icon_name(iconname, GTK_ICON_SIZE_DIALOG);
+		}
+		else
+		{
+			// Fallback
+			icon = gtk_image_new_from_icon_name("dialog-warning", GTK_ICON_SIZE_DIALOG);
+		}
+		gtk_widget_set_valign(icon, GTK_ALIGN_START);
+		gtk_box_pack_start(GTK_BOX(hbox), icon, FALSE, FALSE, 0);
+
+		GtkWidget *label_widget = gtk_label_new(message);
+		gtk_label_set_line_wrap(GTK_LABEL(label_widget), TRUE);
+		gtk_label_set_max_width_chars(GTK_LABEL(label_widget), 60);
+		gtk_widget_set_halign(label_widget, GTK_ALIGN_START);
+		gtk_widget_set_valign(label_widget, GTK_ALIGN_CENTER);
+		gtk_box_pack_start(GTK_BOX(hbox), label_widget, TRUE, TRUE, 0);
+
+		gtk_widget_show_all(content_area);
 
 		gint response = gtk_dialog_run(GTK_DIALOG(dialog));
 		gtk_widget_destroy(dialog);
+
+		g_free(message);
+		g_free(windowtitle);
 
 		if (response != GTK_RESPONSE_YES)
 		{
