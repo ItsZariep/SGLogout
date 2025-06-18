@@ -1,4 +1,4 @@
-# SGLauncher
+# SGLogout
 Simple GTK Logout Menu
 
 Features:
