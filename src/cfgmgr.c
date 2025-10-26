@@ -25,7 +25,7 @@ GtkWidget *gautogridadjustment;
 
 static void on_glayout_changed(GtkComboBox *combo, gpointer user_data)
 {
-
+	(void)user_data;
 	if (gtk_combo_box_get_active(combo) == 2)
 	{
 		gtk_widget_show(ggridlayout_cols_label);
@@ -42,6 +42,7 @@ static void on_glayout_changed(GtkComboBox *combo, gpointer user_data)
 
 void on_save_button_clicked(GtkWidget *dummy, gpointer data)
 {
+	(void)dummy;
 	layout = gtk_combo_box_get_active(GTK_COMBO_BOX(glayout));
 	autogridadjustment = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gautogridadjustment));
 

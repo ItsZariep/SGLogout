@@ -296,7 +296,7 @@ void create_window(void)
 		}
 		else if (layout == 1)
 		{
-			columns = 9;
+			columns = -1;
 		}
 		else if (layout == 2)
 		{

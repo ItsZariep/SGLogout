@@ -8,7 +8,7 @@ OBJ_NOLIBS = $(SRC:.c=.nolibs.o)
 EXE = sglogout
 
 CFLAGS_X11 = `pkg-config --cflags gtk+-3.0` -DX11 -Dpver=\"$(VERSION)\"
-CFLAGS_WAYLAND = `pkg-config --cflags gtk+-3.0 gtk-layer-shell-0` -Dwayland -Dpver=\"$(VERSION)\"
+CFLAGS_WAYLAND = `pkg-config --cflags gtk+-3.0 gtk-layer-shell-0` -Dwayland -Dpver=\"$(VERSION)\" -Wall -Wextra -Werror -pedantic
 CFLAGS_NOLIBS = `pkg-config --cflags gtk+-3.0` -Dnolibs -Dpver=\"$(VERSION)\"
 
 LIBS_X11 = `pkg-config --libs gtk+-3.0` -lX11 -lsgxpos

@@ -2,7 +2,7 @@
 Name=SGLogout Settings
 Comment=Configure SGLogout
 Exec=sglogout --cfg
-Icon=system-shutdown-symbolic
+Icon=system-shutdown
 Terminal=false
 Type=Application
 Categories=GTK;Settings;
